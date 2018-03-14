@@ -2,9 +2,9 @@ include docker/mk/*.mk
 
 # Define variables, export them and include them usage-documentation
 $(eval $(call defw,NS,25thfloor))
-$(eval $(call defw,REPO,ttrack-server))
+$(eval $(call defw,REPO,hapi-server))
 $(eval $(call defw,VERSION,latest))
-$(eval $(call defw,NAME,ttrack))
+$(eval $(call defw,NAME,hapi))
 
 $(eval $(call defw,GIT_COMMIT,null))
 
@@ -17,7 +17,7 @@ ifeq (Linux,$(UNAME_S))
 endif
 
 # Deps
-running_container := $(shell docker ps -a -f "name=ttrack" --format="{{.ID}}")
+running_container := $(shell docker ps -a -f "name=hapi" --format="{{.ID}}")
 
 # -----------------------------------------------------------------------------
 # Build and ship
@@ -55,15 +55,15 @@ endif
 
 .PHONY: yarn
 yarn:: ##@Helpers Run "yarn [<COMMAND>]" within the server container
-	docker exec -ti ttrack-server yarn $(YARN_ARGS) ${OPTIONS}
+	docker exec -ti hapi-server yarn $(YARN_ARGS) ${OPTIONS}
 
 .PHONY: shell
 shell: ##@Helpers Get a shell within the server container
-	docker exec -ti ttrack-server bash
+	docker exec -ti hapi-server bash
 
 .PHONY: postgres
 postgres: ##@Helpers Get a shell within the server container
-	docker exec -ti ttrack-postgres bash
+	docker exec -ti hapi-postgres bash
 
 .PHONY: buildinfo
 buildinfo:: ##@Helpers create the buildinfo json config
@@ -108,4 +108,4 @@ endif
 # -----------------------------------------------------------------------------
 .PHONY: waitforserver
 waitforserver:: ##@Helpers Run "yarn [<COMMAND>]" within the server container
-	docker exec -it ttrack-server wget --spider -S "http://localhost:8000/api/users/" ${OPTIONS}
+	docker exec -it hapi-server wget --spider -S "http://localhost:8000/api/users/" ${OPTIONS}

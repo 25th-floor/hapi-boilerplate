@@ -1,11 +1,6 @@
-FROM node:8.1.4
+FROM node:8.10.0
 
 ENV NODE_ENV production
-ENV HOST 0.0.0.0
-ENV PORT 8000
-ENV DB_DRIVER pg
-ENV DB_PORT 5432
-ENV DB_SCHEMA public
 
 ARG AS_USER=root
 ARG AS_UID=0
@@ -20,6 +15,7 @@ RUN apt-get update \
 	&& apt-get install -y netcat \
 	&& rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+# linux permission fix
 #RUN [ ${AS_UID} -gt 500 -a $(getent passwd ${AS_UID}) ] && \
 #		{ REUID_USER=$(getent passwd ${AS_UID} | awk -F: '{print $1}') \
 #		&& usermod -u ${REUID_UID} ${REUID_USER} \
@@ -46,11 +42,7 @@ RUN yarn install
 COPY .eslintrc ${APPDIR}
 COPY .eslintignore ${APPDIR}
 
-# javascript ES2017 syntax for testing
-COPY .babelrc ${APPDIR}
-
 # TEST runner setup
-# COPY setup-jasmine-env.js ${APPDIR}
 
 # Entrypoint related
 COPY docker/entrypoint.sh /entrypoint.sh

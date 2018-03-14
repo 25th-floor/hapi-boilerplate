@@ -1,4 +1,5 @@
-const packageJson = require('../../package.json');
+const appRoot = require('app-root-path');
+const { version, pkgVersions } = require(`${appRoot}/package.json`);
 
 const envKey = key => {
     const env = process.env.NODE_ENV || 'development';
@@ -22,84 +23,40 @@ const envKey = key => {
     return configuration[env][key];
 };
 
-const databaseConfig = {
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || 'postgres',
-    database: process.env.DB_DATABASE || 'ttrack',
-    port: process.env.DB_PORT || '5432',
-    host: process.env.DB_HOST || 'postgres',
-    driver: process.env.DB_DRIVER || 'pg',
-    schema: process.env.DB_SCHEMA || 'public'
-};
-
 const manifest = {
-    connections: [
-        {
-            host: envKey('host'),
-            port: envKey('port'),
-            routes: {
-                cors: true
-            },
-            router: {
-                stripTrailingSlash: true
-            }
+    server: {
+        host: envKey('host'),
+        port: envKey('port'),
+        routes: {
+            cors: true
+        },
+        router: {
+            stripTrailingSlash: true
         }
-    ],
-    registrations: [
-        {
-            plugin: {
-                register: 'inert',
-            }
-        },
-        {
-            plugin: {
-                register: 'vision',
-            }
-        },
-        {
-            plugin: {
-                register: './pg',
-                options: {
-                    development: {
-                        ...databaseConfig,
-                    },
-                    test: {
-                        ...databaseConfig,
-                        'database': 'ttrack_test',
-                    },
-                    production: {
-                        ...databaseConfig,
-                    }
-                }
-            }
-        },
-        {
-            plugin: './api',
-            options: {
-                routes: {prefix: '/api'}
-            }
-        },
-        {
-            plugin: {
-                register: 'hapi-405-routes',
-                options: {
-                    methodsToSupport: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH', 'TRACE'],
-                    setAllowHeader: true,
-                }
-            }
-        },
-        {
-            plugin: {
-                register: 'hapi-swagger',
+    },
+    register:{
+        plugins: [
+            {
+                plugin: require('inert'),
+            },
+            {
+                plugin: require('vision'),
+            },
+            {
+                plugin: './api',
+                routes: {prefix: '/api'},
+            },
+            {
+                plugin: require('hapi-swagger'),
                 options: {
                     tags: [{
                         name: 'api',
                         description: 'Public user calls'
                     }],
                     info: {
-                        description: 'This is the ttrack API',
-                        version: packageJson.version,
-                        title: 'ttrack API',
+                        description: 'This is the API',
+                        version: version,
+                        title: 'API',
                         contact: {
                             email: 'ts@25th-floor.com',
                         },
@@ -110,11 +67,9 @@ const manifest = {
                     },
                     documentationPath: '/docs',
                 }
-            }
-        },
-        {
-            plugin: {
-                register: 'good',
+            },
+            {
+                plugin: require('good'),
                 options: {
                     reporters: {
                         console: [{
@@ -131,19 +86,17 @@ const manifest = {
                         }, 'stdout']
                     }
                 }
-            }
-        },
-        {
-            plugin: {
-                register: 'hapi-api-version',
+            },
+            {
+                plugin: require('hapi-api-version'),
                 options: {
-                    validVersions: packageJson.ttrackServer.validVersions,
-                    defaultVersion: packageJson.ttrackServer.apiVersion,
-                    vendorName: 'ttrack'
+                    validVersions: pkgVersions.validVersions,
+                    defaultVersion: pkgVersions.apiVersion,
+                    vendorName: 'unamed'
                 }
             }
-        }
-    ]
+        ]
+    }
 };
 
 module.exports = manifest;

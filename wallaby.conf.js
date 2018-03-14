@@ -1,37 +1,29 @@
 module.exports = function (wallaby) {
-    process.env.DATABASE_URL = 'postgres://postgres:postgres@localhost:5432/ttrack_test';
+    // process.env.DATABASE_URL = 'postgres://postgres:postgres@localhost:5432/hapi_test';
+    // process.env.TZ = 'UTC';
     process.env.NODE_ENV = 'test';
-    process.env.TZ = 'UTC';
     return {
+        // src files to watch
         files: [
             'src/**/*.js',
             '!src/**/*.test.js',
         ],
-
+        // test files
         tests: ['src/**/*.test.js'],
 
         env: {
             type: 'node',
             runner: 'node',
+            params: {
+                runner: '--harmony'
+            }
         },
 
-        compilers: {
-            '**/*.js': wallaby.compilers.babel({
-                babel: require('babel-core'),
-                //presets: ['react-app'],
-            }),
-        }, 
-
-        /*setup: function (w) {
-            w.testFramework.configure({
-               setupTestFrameworkScriptFile: '<rootDir>/setup-jasmine-env.js'
-            });
-        }, */
+        testFramework: 'jest',
 
         delays: {
             run: 1000
         },
         
-        testFramework: 'jest',
     };
 };
